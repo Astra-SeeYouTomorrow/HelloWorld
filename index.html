@@ -29,7 +29,7 @@
     cursor:text;
   }
   .line{ white-space:pre-wrap; word-break:break-word; }
-  .prompt-user{ color:var(--green); }
+  .prompt-user{ color:var(--Cyrene); }
   .prompt-sep{ color:var(--dim); }
   .path{ color:#7dd3fc; }
   .hint{ color:var(--dim); }
@@ -43,7 +43,7 @@
     color:var(--fg);
     font-family:inherit;
     font-size:16px;
-    caret-color:var(--green);
+    caret-color:var(--Cyrene);
     padding:0;
     margin:0;
     -webkit-appearance:none;
@@ -56,7 +56,7 @@
     }
   }
 
-  .redirecting{ color:var(--green); }
+  .redirecting{ color:var(--Cyrene); }
 </style>
 </head>
 <body>
@@ -65,7 +65,7 @@
   <div class="line hint">Ketik perintah lalu tekan Enter. Coba: console.log("Hello, World!");</div>
   <div id="history"></div>
   <div id="inputRow">
-    <span class="prompt-user">harits</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
+    <span class="prompt-user">trailblaze</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
     <form id="cmdForm" autocomplete="off">
       <input id="cmdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="send">
     </form>
@@ -94,7 +94,7 @@
   }
 
   function runCommand(cmd){
-    addHistoryLine('harits@console:~$ ' + cmd);
+    addHistoryLine('trailblaze@console:~$ ' + cmd);
     const trimmed = cmd.trim();
     if(trimmed === ''){ return; }
 
