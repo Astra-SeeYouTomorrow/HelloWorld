@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>See You Tomorrow</title>
+<style>
+  :root{
+    --bg:#0c0c0c;
+    --fg:#c9c9c9;
+    --Cyrene:#FFC0CB;
+    --dim:#E6E6FA;
+    --cursor:#F6A6C1;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    color:var(--fg);
+  }
+  #term{
+    height:100%;
+    padding:20px 24px;
+    overflow-y:auto;
+    font-size:15px;
+    line-height:1.6;
+    cursor:text;
+  }
+  .line{ white-space:pre-wrap; word-break:break-word; }
+  .prompt-user{ color:var(--Cyrene); }
+  .prompt-sep{ color:var(--dim); }
+  .path{ color:#e42abf; }
+  .hint{ color:var(--dim); }
+  #inputRow{ display:flex; align-items:center; }
+  #inputText{
+    white-space:pre;
+  }
+  #cursor{
+    display:inline-block;
+    width:8px; height:17px;
+    background:var(--cursor);
+    margin-left:1px;
+    animation:blink 1s steps(1) infinite;
+    transform: translateY(3px);
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .redirecting{ color:var(--green); }
+</style>
+</head>
+<body>
+
+<div id="term">
+  <div class="line hint">Selamat datang. Ketik perintah lalu tekan Enter. Contoh: console.log("Hello, World!");</div>
+  <div id="history"></div>
+  <div id="inputRow">
+    <span class="prompt-user">Trailblazer</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
+    <span id="inputText"></span><span id="cursor"></span>
+  </div>
+</div>
+
+<script>
+  const term = document.getElementById('term');
+  const history = document.getElementById('history');
+  const inputText = document.getElementById('inputText');
+
+  const VIDEO_URL = "https://youtu.be/LB_65-rOYYo";
+  let buffer = "";
+  let redirecting = false;
+
+  function normalize(s){
+    return s.replace(/\s+/g,'').replace(/'/g,'"').toLowerCase();
+  }
+  const TARGET = normalize('console.log("Hello, World!");');
+
+  function addHistoryLine(text, cls){
+    const div = document.createElement('div');
+    div.className = 'line' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    history.appendChild(div);
+  }
+
+  function runCommand(cmd){
+    addHistoryLine('Trailblazer@console:~$ ' + cmd);
+    const trimmed = cmd.trim();
+    if(trimmed === ''){ return; }
+
+    if(normalize(trimmed) === TARGET){
+      addHistoryLine('> ' + trimmed.match(/"([^"]+)"/)[1]);
+      addHistoryLine('Membuka ' + VIDEO_URL + ' ...', 'redirecting');
+      redirecting = true;
+      setTimeout(()=>{ window.location.href = VIDEO_URL; }, 700);
+      return;
+    }
+
+    if(normalize(trimmed).startsWith('console.log(')){
+      const match = trimmed.match(/console\.log\(\s*["'](.*)["']\s*\)\s*;?/);
+      if(match){
+        addHistoryLine('> ' + match[1]);
+        return;
+      }
+    }
+
+    if(trimmed === 'clear'){
+      history.innerHTML = '';
+      return;
+    }
+
+    if(trimmed === 'help'){
+      addHistoryLine('Perintah yang dikenal: console.log("..."); | clear | help');
+      return;
+    }
+
+    addHistoryLine(`bash: ${trimmed}: command not found`, 'hint');
+  }
+
+  document.addEventListener('keydown', (e)=>{
+    if(redirecting) return;
+    if(e.key === 'Enter'){
+      runCommand(buffer);
+      buffer = '';
+      inputText.textContent = '';
+      term.scrollTop = term.scrollHeight;
+      return;
+    }
+    if(e.key === 'Backspace'){
+      buffer = buffer.slice(0, -1);
+      inputText.textContent = buffer;
+      return;
+    }
+    if(e.key.length === 1){
+      buffer += e.key;
+      inputText.textContent = buffer;
+    }
+  });
+
+  term.addEventListener('click', ()=> term.focus());
+  term.tabIndex = 0;
+  term.focus();
+</script>
+
+</body>
+</html>
