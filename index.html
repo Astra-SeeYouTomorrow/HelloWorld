@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>See You Tomorrow</title>
 <style>
   :root{
@@ -21,18 +21,6 @@
     color:var(--fg);
   }
   #term{
-    @media (max-width: 480px){
-  #term{
-    font-size: 13px;
-    padding: 14px 16px;
-  }
-}
-    @media (max-width: 480px){
-  #term{
-    font-size: 13px;
-    padding: 14px 16px;
-  }
-}
     height:100%;
     padding:20px 24px;
     overflow-y:auto;
@@ -60,6 +48,20 @@
   @keyframes blink{ 50%{ opacity:0; } }
 
   .redirecting{ color:var(--green); }
+
+ #hiddenInput{
+    position:absolute;
+    opacity:0;
+    height:0; width:0;
+    pointer-events:none;
+  }
+
+  @media (max-width: 480px){
+    #term{
+      font-size: 13px;
+      padding: 14px 16px;
+    }
+  }
 </style>
 </head>
 <body>
