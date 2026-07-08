@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>See You Tomorrow</title>
 <style>
   :root{
@@ -12,7 +13,7 @@
     --cursor:#F6A6C1;
   }
 
-  *{ box-sizing:border-box; }
+ *{ box-sizing:border-box; }
   html,body{
     margin:0; padding:0; height:100%;
     background:var(--bg);
@@ -28,23 +29,32 @@
     cursor:text;
   }
   .line{ white-space:pre-wrap; word-break:break-word; }
-  .prompt-user{ color:var(--Cyrene); }
+  .prompt-user{ color:var(--green); }
   .prompt-sep{ color:var(--dim); }
-  .path{ color:#e42abf; }
+  .path{ color:#7dd3fc; }
   .hint{ color:var(--dim); }
   #inputRow{ display:flex; align-items:center; }
-  #inputText{
-    white-space:pre;
+  #cmdForm{ flex:1; display:flex; margin:0; padding:0; }
+  #cmdInput{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--fg);
+    font-family:inherit;
+    font-size:16px;
+    caret-color:var(--green);
+    padding:0;
+    margin:0;
+    -webkit-appearance:none;
   }
-  #cursor{
-    display:inline-block;
-    width:8px; height:17px;
-    background:var(--cursor);
-    margin-left:1px;
-    animation:blink 1s steps(1) infinite;
-    transform: translateY(3px);
+
+  @media (max-width: 480px){
+    #term{
+      font-size: 13px;
+      padding: 14px 16px;
+    }
   }
-  @keyframes blink{ 50%{ opacity:0; } }
 
   .redirecting{ color:var(--green); }
 </style>
@@ -52,21 +62,23 @@
 <body>
 
 <div id="term">
-  <div class="line hint">Selamat datang. Ketik perintah lalu tekan Enter. Contoh: console.log("Hello, World!");</div>
+  <div class="line hint">Ketik perintah lalu tekan Enter. Coba: console.log("Hello, World!");</div>
   <div id="history"></div>
   <div id="inputRow">
-    <span class="prompt-user">Trailblazer</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
-    <span id="inputText"></span><span id="cursor"></span>
+    <span class="prompt-user">harits</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
+    <form id="cmdForm" autocomplete="off">
+      <input id="cmdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="send">
+    </form>
   </div>
 </div>
 
 <script>
   const term = document.getElementById('term');
   const history = document.getElementById('history');
-  const inputText = document.getElementById('inputText');
+  const cmdForm = document.getElementById('cmdForm');
+  const cmdInput = document.getElementById('cmdInput');
 
   const VIDEO_URL = "https://youtu.be/LB_65-rOYYo";
-  let buffer = "";
   let redirecting = false;
 
   function normalize(s){
@@ -82,7 +94,7 @@
   }
 
   function runCommand(cmd){
-    addHistoryLine('Trailblazer@console:~$ ' + cmd);
+    addHistoryLine('harits@console:~$ ' + cmd);
     const trimmed = cmd.trim();
     if(trimmed === ''){ return; }
 
@@ -90,6 +102,7 @@
       addHistoryLine('> ' + trimmed.match(/"([^"]+)"/)[1]);
       addHistoryLine('Membuka ' + VIDEO_URL + ' ...', 'redirecting');
       redirecting = true;
+      cmdInput.disabled = true;
       setTimeout(()=>{ window.location.href = VIDEO_URL; }, 700);
       return;
     }
@@ -115,29 +128,16 @@
     addHistoryLine(`bash: ${trimmed}: command not found`, 'hint');
   }
 
-  document.addEventListener('keydown', (e)=>{
+  cmdForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
     if(redirecting) return;
-    if(e.key === 'Enter'){
-      runCommand(buffer);
-      buffer = '';
-      inputText.textContent = '';
-      term.scrollTop = term.scrollHeight;
-      return;
-    }
-    if(e.key === 'Backspace'){
-      buffer = buffer.slice(0, -1);
-      inputText.textContent = buffer;
-      return;
-    }
-    if(e.key.length === 1){
-      buffer += e.key;
-      inputText.textContent = buffer;
-    }
+    runCommand(cmdInput.value);
+    cmdInput.value = '';
+    term.scrollTop = term.scrollHeight;
   });
 
-  term.addEventListener('click', ()=> term.focus());
-  term.tabIndex = 0;
-  term.focus();
+  term.addEventListener('click', ()=> cmdInput.focus());
+  window.addEventListener('load', ()=> cmdInput.focus());
 </script>
 
 </body>
