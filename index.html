@@ -13,7 +13,7 @@
     --cursor:#F6A6C1;
   }
 
-  *{ box-sizing:border-box; }
+ *{ box-sizing:border-box; }
   html,body{
     margin:0; padding:0; height:100%;
     background:var(--bg);
@@ -29,9 +29,9 @@
     cursor:text;
   }
   .line{ white-space:pre-wrap; word-break:break-word; }
-  .prompt-user{ color:var(--Cyrene); }
+  .prompt-user{ color:var(--green); }
   .prompt-sep{ color:var(--dim); }
-  .path{ color:#e42abf; }
+  .path{ color:#7dd3fc; }
   .hint{ color:var(--dim); }
   #inputRow{ display:flex; align-items:center; }
   #inputText{
@@ -49,7 +49,7 @@
 
   .redirecting{ color:var(--green); }
 
- #hiddenInput{
+  #hiddenInput{
     position:absolute;
     opacity:0;
     height:0; width:0;
@@ -67,18 +67,20 @@
 <body>
 
 <div id="term">
-  <div class="line hint">Selamat datang. Ketik perintah lalu tekan Enter. Contoh: console.log("Hello, World!");</div>
+  <div class="line hint">Selamat datang. Ketik perintah lalu tekan Enter. Coba: console.log("Hello, World!");</div>
   <div id="history"></div>
   <div id="inputRow">
-    <span class="prompt-user">Trailblazer</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
+    <span class="prompt-user">harits</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
     <span id="inputText"></span><span id="cursor"></span>
   </div>
 </div>
+<input id="hiddenInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
 
 <script>
   const term = document.getElementById('term');
   const history = document.getElementById('history');
   const inputText = document.getElementById('inputText');
+  const hiddenInput = document.getElementById('hiddenInput');
 
   const VIDEO_URL = "https://youtu.be/LB_65-rOYYo";
   let buffer = "";
@@ -97,7 +99,7 @@
   }
 
   function runCommand(cmd){
-    addHistoryLine('Trailblazer@console:~$ ' + cmd);
+    addHistoryLine('harits@console:~$ ' + cmd);
     const trimmed = cmd.trim();
     if(trimmed === ''){ return; }
 
@@ -130,29 +132,29 @@
     addHistoryLine(`bash: ${trimmed}: command not found`, 'hint');
   }
 
-  document.addEventListener('keydown', (e)=>{
+  hiddenInput.addEventListener('keydown', (e)=>{
     if(redirecting) return;
     if(e.key === 'Enter'){
+      e.preventDefault();
       runCommand(buffer);
       buffer = '';
+      hiddenInput.value = '';
       inputText.textContent = '';
       term.scrollTop = term.scrollHeight;
-      return;
-    }
-    if(e.key === 'Backspace'){
-      buffer = buffer.slice(0, -1);
-      inputText.textContent = buffer;
-      return;
-    }
-    if(e.key.length === 1){
-      buffer += e.key;
-      inputText.textContent = buffer;
     }
   });
 
-  term.addEventListener('click', ()=> term.focus());
-  term.tabIndex = 0;
-  term.focus();
+  hiddenInput.addEventListener('input', ()=>{
+    if(redirecting) return;
+    buffer = hiddenInput.value;
+    inputText.textContent = buffer;
+  });
+
+  function focusInput(){ hiddenInput.focus(); }
+
+  term.addEventListener('click', focusInput);
+  document.body.addEventListener('click', focusInput);
+  window.addEventListener('load', focusInput);
 </script>
 
 </body>
