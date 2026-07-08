@@ -34,26 +34,19 @@
   .path{ color:#7dd3fc; }
   .hint{ color:var(--dim); }
   #inputRow{ display:flex; align-items:center; }
-  #inputText{
-    white-space:pre;
-  }
-  #cursor{
-    display:inline-block;
-    width:8px; height:17px;
-    background:var(--cursor);
-    margin-left:1px;
-    animation:blink 1s steps(1) infinite;
-    transform: translateY(3px);
-  }
-  @keyframes blink{ 50%{ opacity:0; } }
-
-  .redirecting{ color:var(--green); }
-
-  #hiddenInput{
-    position:absolute;
-    opacity:0;
-    height:0; width:0;
-    pointer-events:none;
+  #cmdForm{ flex:1; display:flex; margin:0; padding:0; }
+  #cmdInput{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--fg);
+    font-family:inherit;
+    font-size:16px;
+    caret-color:var(--green);
+    padding:0;
+    margin:0;
+    -webkit-appearance:none;
   }
 
   @media (max-width: 480px){
@@ -62,28 +55,30 @@
       padding: 14px 16px;
     }
   }
+
+  .redirecting{ color:var(--green); }
 </style>
 </head>
 <body>
 
 <div id="term">
-  <div class="line hint">Selamat datang. Ketik perintah lalu tekan Enter. Coba: console.log("Hello, World!");</div>
+  <div class="line hint">Ketik perintah lalu tekan Enter. Coba: console.log("Hello, World!");</div>
   <div id="history"></div>
   <div id="inputRow">
     <span class="prompt-user">harits</span><span class="prompt-sep">@</span><span class="path">console</span><span class="prompt-sep">:~$&nbsp;</span>
-    <span id="inputText"></span><span id="cursor"></span>
+    <form id="cmdForm" autocomplete="off">
+      <input id="cmdInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="send">
+    </form>
   </div>
 </div>
-<input id="hiddenInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
 
 <script>
   const term = document.getElementById('term');
   const history = document.getElementById('history');
-  const inputText = document.getElementById('inputText');
-  const hiddenInput = document.getElementById('hiddenInput');
+  const cmdForm = document.getElementById('cmdForm');
+  const cmdInput = document.getElementById('cmdInput');
 
   const VIDEO_URL = "https://youtu.be/LB_65-rOYYo";
-  let buffer = "";
   let redirecting = false;
 
   function normalize(s){
@@ -107,6 +102,7 @@
       addHistoryLine('> ' + trimmed.match(/"([^"]+)"/)[1]);
       addHistoryLine('Membuka ' + VIDEO_URL + ' ...', 'redirecting');
       redirecting = true;
+      cmdInput.disabled = true;
       setTimeout(()=>{ window.location.href = VIDEO_URL; }, 700);
       return;
     }
@@ -132,29 +128,16 @@
     addHistoryLine(`bash: ${trimmed}: command not found`, 'hint');
   }
 
-  hiddenInput.addEventListener('keydown', (e)=>{
+  cmdForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
     if(redirecting) return;
-    if(e.key === 'Enter'){
-      e.preventDefault();
-      runCommand(buffer);
-      buffer = '';
-      hiddenInput.value = '';
-      inputText.textContent = '';
-      term.scrollTop = term.scrollHeight;
-    }
+    runCommand(cmdInput.value);
+    cmdInput.value = '';
+    term.scrollTop = term.scrollHeight;
   });
 
-  hiddenInput.addEventListener('input', ()=>{
-    if(redirecting) return;
-    buffer = hiddenInput.value;
-    inputText.textContent = buffer;
-  });
-
-  function focusInput(){ hiddenInput.focus(); }
-
-  term.addEventListener('click', focusInput);
-  document.body.addEventListener('click', focusInput);
-  window.addEventListener('load', focusInput);
+  term.addEventListener('click', ()=> cmdInput.focus());
+  window.addEventListener('load', ()=> cmdInput.focus());
 </script>
 
 </body>
